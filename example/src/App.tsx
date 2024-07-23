@@ -1,19 +1,9 @@
-import { useState, useEffect } from 'react';
-import { StyleSheet, View, Text } from 'react-native';
-import { multiply } from 'wallet-connect-native-rn';
-
+import { StyleSheet, View, NativeModules } from 'react-native';
+import { WalletConnectNativeRn } from 'wallet-connect-native-rn';
+console.log('NativeModules', NativeModules);
+console.warn('WalletConnectNativeRn', WalletConnectNativeRn);
 export default function App() {
-  const [result, setResult] = useState<number | undefined>();
-
-  useEffect(() => {
-    multiply(3, 7).then(setResult);
-  }, []);
-
-  return (
-    <View style={styles.container}>
-      <Text>Result: {result}</Text>
-    </View>
-  );
+  return <View style={styles.container} />;
 }
 
 const styles = StyleSheet.create({

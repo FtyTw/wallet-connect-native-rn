@@ -65,6 +65,7 @@
     "@release-it/conventional-changelog": "^5.0.0",
     "@types/jest": "^29.5.5",
     "@types/react": "^18.2.44",
+    "@walletconnect/jsonrpc-types": "^1.0.4",
     "commitlint": "^17.0.2",
     "del-cli": "^5.1.0",
     "eslint": "^8.51.0",
@@ -77,7 +78,8 @@
     "react-native-builder-bob": "^0.25.0",
     "release-it": "^15.0.0",
     "turbo": "^1.10.7",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "xcode": "^3.0.1"
   },
   "resolutions": {
     "@types/react": "^18.2.44"
@@ -178,5 +180,24 @@
     "type": "module-legacy",
     "languages": "java-swift",
     "version": "0.38.1"
+  },
+  "wallet-connect-native-rn": {
+    "projectId": "275d85a7ca3100bcf33e4051a5cf3a4d",
+    "relayUrl": "relay.walletconnect.com",
+    "icon": "https://admindev.palpayments.com/static/media/LOGO.888059c06302c6c0158f.png",
+    "name": "PalWallet",
+    "description": "Self-Custody Wallet",
+    "url": "https://www.palwallet.com"
+  },
+  "dependencies": {
+    "@ethersproject/shims": "^5.7.0",
+    "@json-rpc-tools/utils": "^1.7.6",
+    "@react-native-async-storage/async-storage": "^1.23.1",
+    "@react-native-community/netinfo": "^11.3.2",
+    "@walletconnect/react-native-compat": "^2.13.3",
+    "@walletconnect/web3wallet": "^1.12.3",
+    "ethers": "^5.7.2",
+    "fast-text-encoding": "^1.0.6",
+    "react-native-get-random-values": "^1.11.0"
   }
 }

@@ -7,14 +7,32 @@ buildscript {
         ndkVersion = "26.1.10909125"
         kotlinVersion = "1.9.22"
     }
+
     repositories {
         google()
         mavenCentral()
     }
+
     dependencies {
         classpath("com.android.tools.build:gradle")
         classpath("com.facebook.react:react-native-gradle-plugin")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
+    }
+
+    allprojects {
+      configurations.all {
+              resolutionStrategy {
+                  eachDependency {
+                  DependencyResolveDetails dependency ->
+                      println dependency.requested.group
+                      // wallet connect BOM 1.31.0
+                      // https://gist.github.com/TalhaAli00/7b9e1cadf19b9dc5141cd033aa4e6172
+                      if (requested.group == "org.bouncycastle" ) {
+                          useTarget("org.bouncycastle:bcprov-jdk18on:1.77")
+                      }
+                   }
+              }
+          }
     }
 }
 

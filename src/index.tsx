@@ -6,7 +6,7 @@ const LINKING_ERROR =
   '- You rebuilt the app after installing the package\n' +
   '- You are not using Expo Go\n';
 
-const WalletConnectNativeRn = NativeModules.WalletConnectNativeRn
+export const WalletConnectNativeRn = NativeModules.WalletConnectNativeRn
   ? NativeModules.WalletConnectNativeRn
   : new Proxy(
       {},
@@ -16,7 +16,3 @@ const WalletConnectNativeRn = NativeModules.WalletConnectNativeRn
         },
       }
     );
-
-export function multiply(a: number, b: number): Promise<number> {
-  return WalletConnectNativeRn.multiply(a, b);
-}
