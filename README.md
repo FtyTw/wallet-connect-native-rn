@@ -8,25 +8,12 @@ Wallet connect functionality provided with native modules instead of direct usag
 npm install wallet-connect-native-rn
 ```
 
-## Usage
-
-
-```js
-import { multiply } from 'wallet-connect-native-rn';
-
-// ...
-
-const result = await multiply(3, 7);
-```
-
-
-## Contributing
-
-See the [contributing guide](CONTRIBUTING.md) to learn how to contribute to the repository and the development workflow.
 
 ## License
 
 MIT
+
+# WIP
 
 ---
 

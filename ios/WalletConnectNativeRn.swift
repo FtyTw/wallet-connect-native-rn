@@ -40,9 +40,9 @@ class WalletConnectNativeRn: RCTEventEmitter {
     var WalletClient: Web3WalletClient?
     static var WalletClientStorage: Web3WalletClient?
     private var cancellables = Set<AnyCancellable>()
-    private let WCPrefix: String = "WalletConnectNativeRn";
+    private let WCPrefix: String = "WalletConnectNativeRn"
     public static var emitter: RCTEventEmitter!
-    
+
     @objc override static func requiresMainQueueSetup() -> Bool {
         return false
     }
@@ -50,7 +50,7 @@ class WalletConnectNativeRn: RCTEventEmitter {
         super.init()
         WalletConnectNativeRn.emitter = self
     }
-    
+
     override func supportedEvents() -> [String]! {
         return [
             "session_delete",
@@ -60,15 +60,15 @@ class WalletConnectNativeRn: RCTEventEmitter {
             "session_settled",
         ]
     }
-    
+
     @objc func emitEvent(withName: String, body: Any) {
         WalletConnectNativeRn.emitter.sendEvent(withName: withName, body: body)
     }
-    
+
     func convertToJSONString<T: Encodable>(_ value: T) -> String? {
         let encoder = JSONEncoder()
         encoder.outputFormatting = .prettyPrinted
-        
+
         do {
             let jsonData = try encoder.encode(value)
             return String(data: jsonData, encoding: .utf8)
@@ -77,7 +77,7 @@ class WalletConnectNativeRn: RCTEventEmitter {
             return nil
         }
     }
-    
+
     func convertToDictionary(_ text: String) -> [String: Any]? {
         let string = text as String
         if let data = string.data(using: .utf8) {
@@ -90,16 +90,16 @@ class WalletConnectNativeRn: RCTEventEmitter {
         }
         return nil
     }
-    
+
     @objc static public func initializeWalletConnectCore(){
-        print("WCPrefix initializeWalletConnectCore")
+        print("\(WCPrefix) initializeWalletConnectCore")
         guard let filePath = Bundle.main.path(forResource: "wallet-connect-configs", ofType: "json") else {
             print("WALLET CONNECT configs file not found")
             return
         }
         do {
             let data = try Data(contentsOf: URL(fileURLWithPath: filePath))
-            
+
             let configs = try JSONDecoder().decode(WalletConnectMetadata.self, from: data)
             print("WALLET CONNECT configs", configs)
             let metadata = AppMetadata(
@@ -115,19 +115,19 @@ class WalletConnectNativeRn: RCTEventEmitter {
             )
             NSLog("Wallet Connect initialized")
             WalletConnectNativeRn.WalletClientStorage = Web3Wallet.instance
-            
+
         } catch {
             print("Ошибка при чтении файла: \(error.localizedDescription)")
         }
     }
-    
+
     func initListeners(){
         WalletClient!.socketConnectionStatusPublisher
             .sink {status in
                 self.emitEvent(withName: "state_changed", body: status)
             }
             .store(in: &cancellables)
-        
+
         WalletClient?.sessionProposalPublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] session in
@@ -139,7 +139,7 @@ class WalletConnectNativeRn: RCTEventEmitter {
                     print("\(WCPrefix) Failed to convert session proposal(!) to JSON.")
                 }
             }.store(in: &cancellables)
-        
+
         WalletClient?.sessionRequestPublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] sessionRequest in
@@ -151,8 +151,8 @@ class WalletConnectNativeRn: RCTEventEmitter {
                     print("\(WCPrefix) Failed to convert session request(!) to JSON.")
                 }
             }.store(in: &cancellables)
-        
-        
+
+
         WalletClient?.sessionSettlePublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] session in
@@ -163,7 +163,7 @@ class WalletConnectNativeRn: RCTEventEmitter {
                     print("\(WCPrefix) Failed to convert session settle(!) to JSON.")
                 }
             }.store(in: &cancellables)
-        
+
         WalletClient?.sessionDeletePublisher.receive(on: DispatchQueue.main)
             .sink { [weak self] session in
                 guard let self = self else { return }
@@ -171,7 +171,7 @@ class WalletConnectNativeRn: RCTEventEmitter {
                 self.emitEvent(withName: "session_delete", body: session.0)
             }.store(in: &cancellables)
     }
-    
+
     func initializeClient(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
         guard let walletClient = WalletConnectNativeRn.WalletClientStorage else {
             print("\(WCPrefix) WalletClient is nil in initializeClient")
@@ -179,7 +179,7 @@ class WalletConnectNativeRn: RCTEventEmitter {
             reject("\(WCPrefix) WalletClient is nil in initializeClient", error.localizedDescription, error)
             return
         }
-        
+
         if WalletClient == nil {
             WalletClient = walletClient as? Web3WalletClient
             initListeners()
@@ -190,7 +190,7 @@ class WalletConnectNativeRn: RCTEventEmitter {
             reject("\(WCPrefix) Wallet Connect listeners already set", error.localizedDescription, error)
         }
     }
-    
+
     func approveSessionAsync(_ proposalId: String, namespaces: [String: SessionNamespace]) async throws -> String {
         guard let walletClient = WalletClient else {
             throw NSError(domain: "Wallet Client not initialized", code: 401, userInfo: nil)
@@ -202,7 +202,7 @@ class WalletConnectNativeRn: RCTEventEmitter {
             throw error
         }
     }
-    
+
     @objc
     func approveSession(_ proposalData: NSString, nameSpacesData: NSString, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
         let jsonString1 = proposalData as String
@@ -228,21 +228,21 @@ class WalletConnectNativeRn: RCTEventEmitter {
             }
         }
     }
-    
+
     func rejectSessionAsync(_ proposalId: String, reason: RejectionReason) async throws -> String{
         guard let walletClient = WalletClient else {
             throw NSError(domain: "Wallet Client not initialized", code: 401, userInfo: nil)
         }
-        
+
         do {
             try await walletClient.reject(proposalId: proposalId, reason: reason)
             return "WALLET CONNECT session request rejected"
         } catch {
             throw error
         }
-        
+
     }
-    
+
     @objc func rejectSession(_ proposalId:NSString, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock){
         Task{
             do {
@@ -254,7 +254,7 @@ class WalletConnectNativeRn: RCTEventEmitter {
             }
         }
     }
-    
+
     func respondSessionRequestAsync(_ topic:String, requestId:RPCID, response:RPCResult) async throws -> String{
         do{
             let result = try await WalletClient?.respond(topic:topic, requestId: requestId, response: response)
@@ -270,7 +270,7 @@ class WalletConnectNativeRn: RCTEventEmitter {
             throw error
         }
     }
-    
+
     @objc func respondSessionRequest(_ sessionTopic:NSString, respondParams: NSString, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock){
         Task{
             do{
@@ -281,7 +281,7 @@ class WalletConnectNativeRn: RCTEventEmitter {
                     print("\(WCPrefix) respondSessionRequest Invalid data: \(error)")
                     return
                 }
-                
+
                 let respondParamsObject = try JSONDecoder().decode(SuccessRespondParams.self, from: respondParamsData)
                 let responseValue = AnyCodable(respondParamsObject.result)
                 let rpcResult = RPCResult.response(responseValue)
@@ -291,11 +291,11 @@ class WalletConnectNativeRn: RCTEventEmitter {
                 let error = NSError(domain: "\(WCPrefix) respondSessionRequest error", code: 200, userInfo: [NSLocalizedDescriptionKey: error.localizedDescription])
                 reject("\(WCPrefix) respondSessionRequest error", error.localizedDescription, error)
                 print("\(WCPrefix) respondSessionRequest error: \(error)")
-                
+
             }
         }
     }
-    
+
     @objc func rejectSessionRequest(_ sessionTopic:NSString, respondParams: NSString, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock){
         Task{
             do{
@@ -318,16 +318,16 @@ class WalletConnectNativeRn: RCTEventEmitter {
             }
         }
     }
-    
+
     public func pairAsync(_ wcUrl: String) async throws -> String {
         guard let wcUrl = WalletConnectURI(string: wcUrl) else {
             throw NSError(domain: "Invalid URL", code: 400, userInfo: nil)
         }
-        
+
         guard let walletClient = WalletClient else {
             throw NSError(domain: "Wallet Client not initialized", code: 401, userInfo: nil)
         }
-        
+
         do {
             let pairing = try await walletClient.pair(uri: wcUrl)
             return "Pairing completed"
@@ -335,7 +335,7 @@ class WalletConnectNativeRn: RCTEventEmitter {
             throw error
         }
     }
-    
+
     @objc func pair(_ wcUrl: NSString, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
         Task {
             do {
@@ -348,7 +348,7 @@ class WalletConnectNativeRn: RCTEventEmitter {
             }
         }
     }
-    
+
     public func deleteSessionAsync(_ topic:String) async throws -> String {
         guard let walletClient = WalletClient else {
             throw NSError(domain: "Wallet Client not initialized", code: 401, userInfo: nil)
@@ -359,9 +359,9 @@ class WalletConnectNativeRn: RCTEventEmitter {
         } catch{
             throw error
         }
-        
+
     }
-    
+
     @objc
     func deleteSession(_ sessionTopic: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock){
         Task{
@@ -378,13 +378,13 @@ class WalletConnectNativeRn: RCTEventEmitter {
             }
         }
     }
-    
+
     public func checkSessionAsync(_ topic: String) async throws -> String {
         guard let walletClient = WalletClient else {
             throw NSError(domain: "Wallet Client not initialized", code: 401, userInfo: nil)
         }
         print("Attempting to extend session with topic: \(topic)")
-        
+
         let eventData: [String: Any] = ["dummy": true]
         let event = Session.Event(name: "message", data: AnyCodable(any: eventData))
         let chainId = Blockchain("eip155:1")!
@@ -395,8 +395,8 @@ class WalletConnectNativeRn: RCTEventEmitter {
             throw error
         }
     }
-    
-    
-    
-    
+
+
+
+
 }
